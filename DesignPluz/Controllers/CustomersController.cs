@@ -81,6 +81,13 @@ namespace DesignPluz.Controllers
         [HttpPost] 
         public async Task<ActionResult> DeleteCustomerDetails(int id)
         {
+            List<Addresses> addresses = await db.Addresses.Where(x => x.CustomerId == id).ToListAsync();
+            if(addresses.Count > 0)
+            { 
+                db.Addresses.RemoveRange(addresses);
+                await db.SaveChangesAsync();
+            }
+
             Customers customers = await db.Customers.FindAsync(id);
             db.Customers.Remove(customers);
             await db.SaveChangesAsync();
