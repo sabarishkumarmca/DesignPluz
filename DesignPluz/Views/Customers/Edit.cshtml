@@ -1,0 +1,197 @@
+﻿@model DesignPluz.Models.CustomerViewModel
+
+@{
+    ViewBag.Title = "Create";
+    var ema = "@";
+}
+
+<h2>Add/Edit Customer</h2>
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.Customers.id)
+    <div class="form-horizontal">
+
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @*@Html.LabelFor(model => model.firstname, htmlAttributes: new { @class = "control-label col-md-2" })*@
+            <div class="col-md-6">
+                @Html.EditorFor(model => model.Customers.firstname, new { htmlAttributes = new { @class = "form-control", @placeholder = "First Name" } })
+                @Html.ValidationMessageFor(model => model.Customers.firstname, "", new { @class = "text-danger" })
+            </div>
+            <div class="col-md-6">
+                @Html.EditorFor(model => model.Customers.lastname, new { htmlAttributes = new { @class = "form-control", @placeholder = "Last Name" } })
+                @Html.ValidationMessageFor(model => model.Customers.lastname, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            @*@Html.LabelFor(model => model.mobilenumber, htmlAttributes: new { @class = "control-label col-md-2" })*@
+            <div class="col-md-6">
+                @Html.DropDownList("genderId", null, htmlAttributes: new { @class = "form-control", @placeholder = "Gender" })
+                @Html.ValidationMessageFor(model => model.Customers.genderId, "", new { @class = "text-danger" })
+            </div>
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-addon glyphicon glyphicon-phone-alt"></span>
+                    @Html.EditorFor(model => model.Customers.mobilenumber, new { htmlAttributes = new { @class = "form-control", @placeholder = "Mobile Number" } })
+                    @Html.ValidationMessageFor(model => model.Customers.mobilenumber, "", new { @class = "text-danger" })
+                </div>
+
+
+            </div>
+        </div>
+
+        <div class="form-group">
+            @*@Html.LabelFor(model => model.email, htmlAttributes: new { @class = "control-label col-md-2" })*@
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-addon">@ema</span>
+                    @Html.EditorFor(model => model.Customers.email, new { htmlAttributes = new { @class = "form-control", @placeholder = "Email" } })
+                    @Html.ValidationMessageFor(model => model.Customers.email, "", new { @class = "text-danger" })
+                </div>
+
+            </div>
+        </div>
+
+        <hr />
+
+        <div class="form-content">
+            <div class="panel panel-default">
+                <div class="featured-box featured-box featured-box-dark featured-box-text-left jquery_accordion_content" style="    border-color: black;
+        border-top: 1px solid;
+        border-left: 1px solid;
+        border-right: 1px solid;
+        border-bottom: 1px solid;
+    ">
+
+
+                    <div class="container" style="margin-left:35px;">
+                        <br />
+                        @foreach (var item in Model.Addresses)
+                        {
+                            @Html.Partial("_PartialPage", item) 
+                        }
+                        <div class="AddressSetHeaderClass">
+                            @*<partial name="_PartialPage.cshtml">*@
+                        </div>
+
+                    </div>
+                    <div class="form-content">
+                        <br /><button id="Btn_AddAddress" class="btn-success">Add more</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+
+
+        <div class="form-group">
+            <div style="text-align:right">
+                <a href="/Customers/Index" class="btn btn-danger"> Cancel </a>
+                <input type="button" id="Btn_Update" value="Save" class="btn btn-success" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script type="text/javascript">
+         
+
+        //$(document).on('click', '#Btn_AddAddress', function (e) {
+           
+        //});
+
+        $("#Btn_AddAddress").click(function (e) {
+            $.ajax({
+                type: 'GET',
+                url: '/Customers/DisplayNewAddress',
+                success: function (partialView) {
+                    $('.AddressSetHeaderClass').append(partialView);
+                }
+            });
+        })
+
+
+        function getCustomers() {
+            var customer = {
+                id: $("#Customers_id").val(),
+                firstname: $("#Customers_firstname").val(),
+                lastname: $("#Customers_lastname").val(),
+                genderId: $("#genderId").val(),
+                mobilenumber: $("#Customers_mobilenumber").val(),
+                email: $("#Customers_email").val()
+            };
+
+            return customer;
+        }
+
+
+        function getAddresses() {
+            addresses = [];
+
+            const id = document.querySelectorAll('#id');
+            const CustomerId = document.querySelectorAll('#CustomerId');
+            const AddressTypeId = document.querySelectorAll('#AddressTypeId');
+            const StreetAddress = document.querySelectorAll('#StreetAddress');
+            const City = document.querySelectorAll('#City');
+            const State = document.querySelectorAll('#State');
+            const PostalCode = document.querySelectorAll('#PostalCode');
+            const Primary = document.querySelectorAll('#Primary');
+
+            for (var i = 0; i < AddressTypeId.length; i++) {
+                if (AddressTypeId[i].value != '') {
+
+                    var someRadio = Primary[i];
+                    var check = false;
+                    if (someRadio.checked) {
+                        check = true;
+                    }
+                    addresses.push({
+                        id: id[i].value,
+                        CustomerId: CustomerId[i].value,
+                        AddressTypeId: AddressTypeId[i].value,
+                        StreetAddress: StreetAddress[i].value,
+                        City: City[i].value,
+                        State: State[i].value,
+                        PostalCode: PostalCode[i].value,
+                        Primary: check
+
+                    });
+                }
+            }
+
+            return addresses;
+        }
+
+        $("#Btn_Update").click(function (e) {
+            var customer = getCustomers();
+            var addresses = getAddresses();
+
+            $.ajax({
+                type: 'POST',
+                data: { customer, addresses },
+                url: '/Customers/EditCustomers',
+                success: function () {
+                    alert('Success!')
+                }
+            });
+        })
+
+         
+    </script>
+
+}

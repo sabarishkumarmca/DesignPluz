@@ -1,0 +1,124 @@
+﻿@model IEnumerable<DesignPluz.Models.Customers>
+@using Newtonsoft.Json;
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2 style="text-align:center">CUSTOMERS</h2>
+
+<p style="text-align:right">
+    <a href="/customers/create" class="btn btn-primary"> Add Customer</a>
+
+</p>
+<table class="table">
+    <tr>
+
+        <th>
+            @Html.DisplayNameFor(model => model.firstname)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.lastname)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.mobilenumber)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.email)
+        </th>
+
+        <th>Action</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr id="row_@item.id">
+
+            <td>
+                @Html.DisplayFor(modelItem => item.firstname)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.lastname)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.mobilenumber)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.email)
+            </td>
+
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.id }) |
+                
+                <a  href="#"   onclick="ConfirmDelete(@JsonConvert.SerializeObject(item))"> Delete </a>
+
+            </td>
+        </tr>
+    }
+
+</table>
+
+<div class="modal fade" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h3 class="modal-title">Delete Customer</h3>
+            </div>
+            <div class="modal-body">
+                <h4>Do you want to delete <span id="customerName"></span> ?</h4>
+
+
+
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                <a href="#" class="btn btn-success" onclick="DeleteCustomer()">Confirm</a>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<input type="hidden" id="hiddenCustomerId" />
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+<script type="text/javascript">
+
+
+    function ConfirmDelete(customer) {
+         
+        
+        $("#hiddenCustomerId").val(customer['id']);
+        $("#customerName").html(customer['firstname'] + " " + customer['lastname']);
+        
+        $("#myModal").modal('show');
+
+    }
+
+    var DeleteCustomer = function () {
+
+
+
+        var empId = $("#hiddenCustomerId").val();
+
+        $.ajax({
+
+            type: "POST",
+            url: "/Customers/DeleteCustomerDetails",
+            data: { id: empId },
+            success: function (result) {
+
+                $("#myModal").modal("hide");
+                $("#row_" + empId).remove();
+
+            }
+
+        })
+
+    }
+
+</script>
+
+}
